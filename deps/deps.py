@@ -89,6 +89,7 @@ class DepsHandler(object):
             self.handleMissingDependency(dep)
 
             # how to confirm the python module got installed
+            sys.stderr.write("\n")
             sys.stderr.write(
                 'You can confirm it is installed by starting Python and running:\n')
             sys.stderr.write('import %s\n' % module)
@@ -99,7 +100,7 @@ class DepsHandler(object):
         raise
 
     def report(self, summary):
-        pass
+        raise NotImplementedError
 
     def handleMissingDependency(self, dep):
         if dep.homepage:
@@ -116,7 +117,7 @@ class DepsHandler(object):
     Please file a bug at:
     %s
     with instructions on how to install the dependency so we can add it.
-    """ % (d.description, dep.module, self.name, url))
+    """ % (d.description, dep.module, self._name, url))
         else:
             url = self.report('DISTRO: Unknown')
             sys.stderr.write("""%s does not know your distribution.
