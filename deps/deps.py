@@ -8,10 +8,13 @@ import sys
 
 from . import distro
 
+class DependencyError(Exception):
+    pass
 
 class Dependency:
 
     module = None
+    egg = None
     name = None
     homepage = None
 
@@ -29,6 +32,15 @@ class Dependency:
         m = getattr(self, name, None)
         if m:
             return m(distro)
+
+    def validate(self):
+        """
+        Allow the dependency to validate itself, for example based on
+        package version.
+
+        @returns: None if ok, or an explanation of the problem if not.
+        """
+        pass
 
     # base methods that can be used by subclasses
     def Fedora_yum(self, packageName):
@@ -56,6 +68,18 @@ class Dependency:
     def FedoraCore_install(self, distro):
         self.Fedora_install(distro)
 
+
+    def version(self):
+        return self.version_egg()
+
+    def version_egg(self):
+        if not self.egg:
+            return None
+
+        import pkg_resources
+        return pkg_resources.get_distribution(self.egg).version
+
+
 class DepsHandler(object):
     """
     I handle dependencies and related exceptions.
@@ -69,6 +93,18 @@ class DepsHandler(object):
 
     def add(self, dependency):
         self._deps[dependency.module] = dependency
+
+
+    def validate(self):
+        for dep in self._deps.values():
+            ret = dep.validate()
+            if ret:
+                sys.stderr.write("Cannot use module '%s'\n" % dep.module)
+                sys.stderr.write('This module is part of %s.\n' % dep.name)
+                sys.stderr.write(ret + '\n')
+
+                raise DependencyError(dep.module)
+
 
     def handleImportError(self, exception):
         """
