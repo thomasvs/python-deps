@@ -1,12 +1,10 @@
-# -*- Mode: Python; test-case-name: moap.test.test_util_distro -*-
+# -*- Mode: Python; test-case-name: test.test_distro -*-
 # vi:si:et:sw=4:sts=4:ts=4
 
 import commands
 import os
 
 import distutils.version
-
-from moap.util import log
 
 """
 Figure out what distribution, architecture and version the user is on.
