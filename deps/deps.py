@@ -77,7 +77,10 @@ class Dependency:
             return None
 
         import pkg_resources
-        return pkg_resources.get_distribution(self.egg).version
+        try:
+            return pkg_resources.get_distribution(self.egg).version
+        except pkg_resources.DistributionNotFound:
+            pass
 
 
 class DepsHandler(object):
